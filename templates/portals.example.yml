@@ -496,7 +496,7 @@ search_queries:
 #
 # Some providers are job boards / aggregators with no per-company careers
 # URL to detect, so they must be selected with an explicit `provider:`
-# field: arbeitsagentur, glints, jobstreet, ibm, remoteok, remotive,
+# field: arbeitsagentur, glints, himalayas, jobstreet, ibm, remoteok, remotive,
 # weworkremotely, workingnomads. Examples for every built-in provider are below.
 
 # ── Built-in provider examples ────────────────────────────────────
@@ -554,6 +554,10 @@ search_queries:
 #
 # -- Remote-job feeds (no careers_url, no extra fields) --
 # title_filter / location_filter defined above still apply.
+#
+# - name: Himalayas
+#   provider: himalayas
+#   enabled: true
 #
 # - name: RemoteOK
 #   provider: remoteok
