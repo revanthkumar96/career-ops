@@ -446,7 +446,8 @@ try {
 if (!QUICK) {
   console.log('\n4. Dashboard build');
   const isWindows = process.platform === 'win32';
-  const outPath = isWindows ? 'career-dashboard-test.exe' : join(tmpdir(), 'career-dashboard-test');
+  const dashboardBuildTmp = mkdtempSync(join(tmpdir(), 'career-dashboard-build-'));
+  const outPath = join(dashboardBuildTmp, isWindows ? 'career-dashboard-test.exe' : 'career-dashboard-test');
   const goEnv = { ...process.env };
   if (isWindows && !goEnv.GOCACHE) {
     goEnv.GOCACHE = join(tmpdir(), 'career-ops-go-build-cache');
@@ -462,14 +463,11 @@ if (!QUICK) {
   });
   if (goBuild !== null) {
     pass('Dashboard compiles');
-    if (isWindows) {
-      try { rmSync(join(ROOT, 'dashboard', 'career-dashboard-test.exe'), { force: true }); } catch (e) {}
-    } else {
-      try { rmSync(outPath, { force: true }); } catch (e) {}
-    }
+    try { rmSync(outPath, { force: true }); } catch (e) {}
   } else {
     fail('Dashboard build failed');
   }
+  try { rmSync(dashboardBuildTmp, { recursive: true, force: true }); } catch (e) {}
 } else {
   console.log('\n4. Dashboard build (skipped --quick)');
 }
@@ -827,6 +825,15 @@ try {
   }
 } catch (e) {
   fail(`application answers helper crashed: ${e.message}`);
+}
+
+if (
+  run(NODE, ['application-answers.mjs', '--report', '--input'], { stdio: ['pipe', 'pipe', 'pipe'] }) === null &&
+  run(NODE, ['application-answers.mjs', '--report', '--input', 'answers.json'], { stdio: ['pipe', 'pipe', 'pipe'] }) === null
+) {
+  pass('application-answers CLI rejects missing option values');
+} else {
+  fail('application-answers CLI accepted a missing option value');
 }
 
 const ofertaMode = readFile('modes/oferta.md');

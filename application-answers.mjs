@@ -162,7 +162,14 @@ function parseArgs(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === '--help' || arg === '-h') args.help = true;
-    else if (arg.startsWith('--')) args[arg.slice(2)] = argv[++i] ?? '';
+    else if (arg.startsWith('--')) {
+      const value = argv[i + 1];
+      if (!value || value.startsWith('--')) {
+        throw new Error(`Missing value for ${arg}`);
+      }
+      args[arg.slice(2)] = value;
+      i += 1;
+    }
   }
   return args;
 }
@@ -176,7 +183,14 @@ function usage() {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  let args;
+  try {
+    args = parseArgs(process.argv.slice(2));
+  } catch (err) {
+    console.error(`${err.message}\n\n${usage()}`);
+    process.exitCode = 1;
+    return;
+  }
   if (args.help) {
     console.log(usage());
     return;
